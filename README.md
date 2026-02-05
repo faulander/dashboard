@@ -1,421 +1,323 @@
-# SvelteKit Template
+# Startpage Dashboard
 
-A production-ready SvelteKit template with Svelte 5, TailwindCSS 4, shadcn-svelte, and essential utilities pre-configured.
+A minimal, self-hosted startpage dashboard for organizing your bookmarks and services. Configure everything through a simple YAML file.
+
+![Dashboard Preview](https://via.placeholder.com/800x450?text=Dashboard+Preview)
 
 ## Features
 
-- **Svelte 5** with runes syntax (`$state`, `$props`, `$derived`)
-- **TailwindCSS 4** with dark mode support
-- **shadcn-svelte** UI components
-- **TypeScript** with strict mode
-- **ESLint + Prettier** for code quality
-- **Zod + Superforms** for form validation
-- **Docker** ready for deployment
-- Pre-built components: SEO, Theme Toggle, Spinner, Toast notifications
+- **YAML Configuration** - No database, no complex setup. Just edit one file.
+- **Theme Presets** - Nord, Catppuccin, Dracula, Gruvbox, Tokyo Night, Rose Pine
+- **Health Monitoring** - Automatic status checks for your services
+- **Widgets** - Clock, search bar, and more
+- **Responsive** - Works on desktop and mobile
+- **Docker Ready** - Mount your config and go
 
 ## Quick Start
 
+### Using Docker (Recommended)
+
+```bash
+# Create config directory
+mkdir -p config
+
+# Create your configuration
+cat > config/dashboard.yaml << 'EOF'
+theme:
+  preset: 'dracula'
+  mode: 'dark'
+
+display:
+  columns: 1
+  greeting:
+    enabled: true
+    locale: 'en'
+  datetime:
+    enabled: true
+    locale: 'en-US'
+    hour12: false
+    showSeconds: true
+    dateFormat: 'full'
+  healthCheck:
+    enabled: true
+    interval: 60
+    timeout: 5000
+    showStatus: true
+
+sections:
+  - name: 'Apps'
+    items:
+      - name: 'GitHub'
+        url: 'https://github.com'
+        icon: 'github'
+
+widgets:
+  - type: 'clock'
+    position: 'top-left'
+    config:
+      showDate: true
+
+  - type: 'search'
+    position: 'top-center'
+    config:
+      engine: 'duckduckgo'
+      placeholder: 'Search...'
+EOF
+
+# Run with Docker
+docker run -d \
+  --name dashboard \
+  -p 3000:3000 \
+  -v $(pwd)/config:/config \
+  dashboard:latest
+```
+
+Open http://localhost:3000
+
+### Using Docker Compose
+
+```yaml
+# docker-compose.yaml
+services:
+  dashboard:
+    build: .
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./config:/config
+    restart: unless-stopped
+```
+
+```bash
+docker compose up -d
+```
+
+### Manual Installation
+
 ```bash
 # Install dependencies
-npm install
-
-# Copy environment variables
-cp .env.example .env
+bun install
 
 # Start development server
-npm run dev
+bun run dev
+
+# Build for production
+bun run build
+
+# Run production build
+bun ./build/index.js
 ```
 
-## Available Scripts
+## Configuration
 
-| Command                | Description                      |
-| ---------------------- | -------------------------------- |
-| `npm run dev`          | Start development server         |
-| `npm run build`        | Build for production             |
-| `npm run preview`      | Preview production build         |
-| `npm run check`        | Run svelte-check for type errors |
-| `npm run lint`         | Run ESLint                       |
-| `npm run lint:fix`     | Run ESLint with auto-fix         |
-| `npm run format`       | Format code with Prettier        |
-| `npm run format:check` | Check code formatting            |
+All settings live in `config/dashboard.yaml`. The dashboard reloads config on each page refresh.
 
-## Project Structure
+### Theme
 
-```
-src/
-├── routes/
-│   ├── +layout.svelte      # Root layout (includes Toaster)
-│   ├── +page.svelte        # Home page
-│   ├── +error.svelte       # Error page (404, 500, etc.)
-│   └── api/
-│       └── health/         # Health check endpoint
-├── lib/
-│   ├── api.ts              # Typed fetch wrapper
-│   ├── utils.ts            # Utility functions (cn, etc.)
-│   └── components/
-│       ├── seo.svelte      # SEO meta tags
-│       ├── theme-toggle.svelte  # Dark/light mode toggle
-│       ├── spinner.svelte  # Loading spinner
-│       └── ui/             # shadcn-svelte components
-└── hooks.server.ts         # Server hooks (logging, auth prep)
+```yaml
+theme:
+  preset: 'dracula' # nord, catppuccin, dracula, gruvbox, tokyo-night, rose-pine
+  mode: 'dark' # light, dark, system
 ```
 
-## Usage Guide
+### Display Settings
 
-### SEO Component
+```yaml
+display:
+  columns: 4 # Number of section columns (1-6)
 
-Add meta tags to any page:
+  greeting:
+    enabled: true
+    locale: 'en' # en, de, fr, es, it, pt, nl, pl, ru, ja, zh, ko
 
-```svelte
-<script>
-  import Seo from '$lib/components/seo.svelte';
-</script>
+  datetime:
+    enabled: true
+    locale: 'en-US'
+    hour12: false
+    showSeconds: true
+    dateFormat: 'full' # full, long, medium, short
 
-<Seo
-  title="Page Title"
-  description="Page description for search engines"
-  image="/og-image.png"
-  noindex={false}
-  nofollow={false}
-/>
+  healthCheck:
+    enabled: true
+    interval: 60 # Check every 60 seconds
+    timeout: 5000 # 5 second timeout
+    showStatus: true # Show status dots on items
 ```
 
-### Theme Toggle (Dark/Light Mode)
+### Sections
 
-The theme toggle persists user preference in localStorage:
+Organize your bookmarks into sections:
 
-```svelte
-<script>
-  import ThemeToggle from '$lib/components/theme-toggle.svelte';
-</script>
+```yaml
+sections:
+  - name: 'Media'
+    icon: 'tv' # Optional Lucide icon for header
+    items:
+      - name: 'Jellyfin'
+        url: 'https://jellyfin.example.com'
+        icon: 'play-circle'
+        description: 'Media server' # Shows on hover
 
-<header>
-  <ThemeToggle />
-</header>
+      - name: 'Sonarr'
+        url: 'https://sonarr.example.com'
+        icon: 'tv'
+
+  - name: 'Tools'
+    items:
+      - name: 'Portainer'
+        url: 'https://portainer.example.com'
+        icon: 'container'
 ```
 
-### Toast Notifications
+### Icons
 
-Toaster is pre-configured in the layout. Import and use anywhere:
+Icons use [Lucide](https://lucide.dev/icons). Use the icon name in kebab-case:
 
-```svelte
-<script>
-  import { toast } from 'svelte-sonner';
+- `home`, `settings`, `search`
+- `tv`, `film`, `music`
+- `cloud`, `download`, `upload`
+- `github`, `mail`, `rss`
+- `check-circle`, `layout-grid`, `refresh-cw`
 
-  function handleSubmit() {
-    toast.success('Saved successfully!');
-  }
+If no icon is specified, the first letter of the name is shown.
 
-  function handleError() {
-    toast.error('Something went wrong');
-  }
-</script>
+### Widgets
 
-<button onclick={handleSubmit}>Save</button>
+#### Clock Widget
+
+```yaml
+widgets:
+  - type: 'clock'
+    position: 'top-left' # top-left, top-center, top-right, bottom-*
+    config:
+      showDate: true
+      showAnalog: false
 ```
 
-Available toast types:
+#### Search Widget
 
-- `toast('Default message')`
-- `toast.success('Success!')`
-- `toast.error('Error!')`
-- `toast.info('Info')`
-- `toast.warning('Warning')`
-- `toast.loading('Loading...')`
-
-### Loading Spinner
-
-```svelte
-<script>
-  import Spinner from '$lib/components/spinner.svelte';
-
-  let loading = $state(true);
-</script>
-
-{#if loading}
-  <Spinner />
-  <!-- Default: md -->
-  <Spinner size="sm" />
-  <!-- Small -->
-  <Spinner size="lg" />
-  <!-- Large -->
-{/if}
+```yaml
+widgets:
+  - type: 'search'
+    position: 'top-center'
+    config:
+      engine: 'duckduckgo' # google, duckduckgo, brave
+      placeholder: 'Search the web...'
 ```
 
-### API Fetch Utility
+#### Weather Widget
 
-Type-safe API calls with automatic JSON handling and error management:
+Requires an [OpenWeatherMap API key](https://openweathermap.org/api):
 
-```typescript
-import { api, ApiError } from '$lib/api';
-
-// GET request
-const users = await api.get<User[]>('/api/users');
-
-// POST request
-const newUser = await api.post<User>('/api/users', {
-  name: 'John',
-  email: 'john@example.com'
-});
-
-// PUT request
-await api.put('/api/users/1', { name: 'Jane' });
-
-// PATCH request
-await api.patch('/api/users/1', { name: 'Jane' });
-
-// DELETE request
-await api.delete('/api/users/1');
-
-// Error handling
-try {
-  await api.get('/api/protected');
-} catch (e) {
-  if (e instanceof ApiError) {
-    console.log(e.status); // HTTP status code
-    console.log(e.message); // Error message
-    console.log(e.data); // Response body (if any)
-  }
-}
-```
-
-### Form Validation with Superforms
-
-Server-side validation with Zod schemas:
-
-```typescript
-// src/routes/contact/+page.server.ts
-import { z } from 'zod';
-import { superValidate, fail } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
-
-const schema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  message: z.string().min(10, 'Message must be at least 10 characters')
-});
-
-export const load = async () => {
-  const form = await superValidate(zod(schema));
-  return { form };
-};
-
-export const actions = {
-  default: async ({ request }) => {
-    const form = await superValidate(request, zod(schema));
-
-    if (!form.valid) {
-      return fail(400, { form });
-    }
-
-    // Process valid form data
-    console.log(form.data);
-
-    return { form };
-  }
-};
-```
-
-```svelte
-<!-- src/routes/contact/+page.svelte -->
-<script lang="ts">
-  import { superForm } from 'sveltekit-superforms';
-
-  let { data } = $props();
-  const { form, errors, enhance } = superForm(data.form);
-</script>
-
-<form method="POST" use:enhance>
-  <label>
-    Name
-    <input name="name" bind:value={$form.name} />
-    {#if $errors.name}<span class="error">{$errors.name}</span>{/if}
-  </label>
-
-  <label>
-    Email
-    <input name="email" type="email" bind:value={$form.email} />
-    {#if $errors.email}<span class="error">{$errors.email}</span>{/if}
-  </label>
-
-  <label>
-    Message
-    <textarea name="message" bind:value={$form.message}></textarea>
-    {#if $errors.message}<span class="error">{$errors.message}</span>{/if}
-  </label>
-
-  <button type="submit">Send</button>
-</form>
-```
-
-### Adding shadcn-svelte Components
-
-Install additional UI components as needed:
-
-```bash
-# Add a button component
-npx shadcn-svelte@next add button
-
-# Add multiple components
-npx shadcn-svelte@next add button card dialog
-
-# View all available components
-npx shadcn-svelte@next add
-```
-
-Usage:
-
-```svelte
-<script>
-  import { Button } from '$lib/components/ui/button';
-</script>
-
-<Button variant="default">Click me</Button>
-<Button variant="destructive">Delete</Button>
-<Button variant="outline">Cancel</Button>
+```yaml
+widgets:
+  - type: 'weather'
+    position: 'top-right'
+    variant: 'icon-info'
+    refreshInterval: 900 # 15 minutes
+    config:
+      apiKey: '${WEATHER_API_KEY}' # Use environment variable
+      location: 'Berlin,DE'
+      units: 'metric'
 ```
 
 ### Environment Variables
 
-Configure in `.env` (copy from `.env.example`):
+Use `${VAR_NAME}` syntax in YAML to reference environment variables:
+
+```yaml
+config:
+  apiKey: '${MY_API_KEY}'
+```
+
+Then set the variable:
 
 ```bash
-# Public variables (exposed to client)
-PUBLIC_APP_NAME="My App"
-PUBLIC_APP_URL="http://localhost:5173"
-
-# Private variables (server-only)
-DATABASE_URL="postgresql://..."
-AUTH_SECRET="your-secret-key"
+docker run -e MY_API_KEY=your-key-here ...
 ```
 
-Access in code:
+## Health Monitoring
 
-```typescript
-// Client-safe variables
-import { PUBLIC_APP_NAME } from '$env/static/public';
+When `healthCheck.enabled` is `true`, the dashboard periodically checks if your services are reachable:
 
-// Server-only variables
-import { DATABASE_URL } from '$env/static/private';
-```
+- **Green dot** - Service is online
+- **Red dot** - Service is unreachable
+- **Gray dot** - Status unknown
 
-### Server Hooks
+The dashboard makes HEAD requests to each URL. Services behind authentication may show as unreachable unless they respond to unauthenticated requests.
 
-The `src/hooks.server.ts` file includes:
+## Theme Reference
 
-- Request timing/logging
-- Error handling with user-friendly messages
-- Prepared structure for authentication
+| Theme       | Description                    |
+| ----------- | ------------------------------ |
+| nord        | Cool, bluish arctic colors     |
+| catppuccin  | Soothing pastel theme          |
+| dracula     | Dark purple with vibrant pops  |
+| gruvbox     | Retro groove with warm colors  |
+| tokyo-night | Dark theme inspired by Tokyo   |
+| rose-pine   | Natural, muted dark theme      |
 
-To add authentication:
-
-```typescript
-// src/hooks.server.ts
-export const handle: Handle = async ({ event, resolve }) => {
-  // Get session from cookie
-  const sessionId = event.cookies.get('session');
-
-  if (sessionId) {
-    // Fetch user from database
-    const user = await getUser(sessionId);
-    event.locals.user = user;
-  }
-
-  return resolve(event);
-};
-```
-
-## Styling
-
-### Tailwind CSS
-
-Use Tailwind classes directly:
-
-```svelte
-<div class="flex items-center gap-4 p-4 bg-background text-foreground">
-  <h1 class="text-2xl font-bold">Hello</h1>
-</div>
-```
-
-### CSS Variables
-
-Available theme colors (defined in `src/routes/layout.css`):
-
-| Variable        | Usage               |
-| --------------- | ------------------- |
-| `--background`  | Page background     |
-| `--foreground`  | Default text        |
-| `--primary`     | Primary actions     |
-| `--secondary`   | Secondary elements  |
-| `--muted`       | Muted backgrounds   |
-| `--accent`      | Accent highlights   |
-| `--destructive` | Destructive actions |
-| `--border`      | Borders             |
-| `--input`       | Form inputs         |
-| `--ring`        | Focus rings         |
-
-### Class Merging
-
-Use the `cn()` utility for conditional classes:
-
-```svelte
-<script>
-  import { cn } from '$lib/utils';
-
-  let { active, className } = $props();
-</script>
-
-<div class={cn('px-4 py-2 rounded-md', active && 'bg-primary text-primary-foreground', className)}>
-  Content
-</div>
-```
-
-## Deployment
-
-### Docker
-
-Build and run:
+## Development
 
 ```bash
-# Build image
-docker build -t myapp .
+# Install dependencies
+bun install
 
-# Run container
-docker run -p 3000:3000 myapp
+# Start dev server with hot reload
+bun run dev
 
-# With environment variables
-docker run -p 3000:3000 \
-  -e DATABASE_URL="postgresql://..." \
-  -e AUTH_SECRET="your-secret" \
-  myapp
-```
+# Type check
+bun run check
 
-The Dockerfile includes:
+# Lint
+bun run lint
 
-- Multi-stage build for small image size
-- Non-root user for security
-- Health check at `/api/health`
+# Format
+bun run format
 
-### Node.js
-
-```bash
 # Build
-npm run build
-
-# Run
-node build
+bun run build
 ```
 
-### Health Check
+### Project Structure
 
-The `/api/health` endpoint returns:
-
-```json
-{
-  "status": "ok",
-  "timestamp": "2024-01-15T10:30:00.000Z"
-}
 ```
+config/
+└── dashboard.yaml       # Your configuration
+
+src/
+├── routes/
+│   ├── +page.svelte     # Main dashboard page
+│   └── api/             # API endpoints
+├── lib/
+│   ├── components/      # Svelte components
+│   ├── themes/          # Theme presets
+│   ├── server/          # Config loading
+│   └── types/           # TypeScript types
+```
+
+### Adding Icons
+
+Icons are loaded dynamically from Lucide. Common icons are pre-bundled for performance. To add more, edit `src/lib/utils/icons.ts`.
+
+## Troubleshooting
+
+### Config not loading
+
+- Check that `config/dashboard.yaml` exists
+- Verify YAML syntax is valid
+- Check Docker volume mount: `-v $(pwd)/config:/config`
+
+### Icons not showing
+
+- Use valid Lucide icon names (kebab-case)
+- Check browser console for errors
+
+### Health checks failing
+
+- Ensure services are accessible from the dashboard container
+- Check `timeout` setting (default 5000ms)
+- Services requiring authentication may fail health checks
 
 ## License
 
