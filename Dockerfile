@@ -1,10 +1,10 @@
 # Build stage
-FROM oven/bun:1.0.5-alpine AS builder
+FROM oven/bun:latest-alpine AS builder
 
 WORKDIR /app
 
 # Copy package files
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 
 # Install dependencies
 RUN bun install --frozen-lockfile
@@ -16,7 +16,7 @@ COPY . .
 RUN bun run build
 
 # Production stage
-FROM oven/bun:1.0.5-alpine AS production
+FROM oven/bun:latest-alpine AS production
 
 WORKDIR /app
 
