@@ -1,3 +1,6 @@
+# Config (contains personal URLs)
+config/dashboard.yaml
+
 node_modules
 
 # Output

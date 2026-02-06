@@ -1,0 +1,112 @@
+# Dashboard Configuration
+# Copy this file to dashboard.yaml and customize it for your setup
+# cp config/dashboard_example.yaml config/dashboard.yaml
+
+# Theme settings
+theme:
+  preset: 'nord' # Options: nord, catppuccin, dracula, gruvbox, tokyo-night, rose-pine
+  mode: 'dark' # Options: light, dark, system
+
+# Display settings
+display:
+  columns: 1 # Number of columns in section grid (1-6)
+
+  greeting:
+    enabled: true
+    locale: 'en' # Locale for greeting (en, de, fr, es, it, pt, nl, pl, ru, ja, zh, ko)
+
+  datetime:
+    enabled: true
+    locale: 'en-US' # Intl.DateTimeFormat locale
+    hour12: false # true for 12-hour, false for 24-hour
+    showSeconds: true
+    dateFormat: 'full' # Options: full, long, medium, short
+
+  # Link health checking - monitors if your services are online
+  healthCheck:
+    enabled: true # Enable/disable health checking
+    interval: 30 # Check interval in seconds (minimum 30, default 300 = 5 minutes)
+    timeout: 5000 # Request timeout in milliseconds (1000-30000)
+    showStatus: true # Show status indicator on items
+
+# Sections - define as many as needed
+sections:
+  - name: 'Applications'
+    icon: 'layout-grid'
+    items:
+      - name: 'Service 1'
+        url: 'https://service1.example.com'
+        icon: 'cloud'
+      - name: 'Service 2'
+        url: 'https://service2.example.com'
+        icon: 'activity'
+      - name: 'File Manager'
+        url: 'https://files.example.com'
+        icon: 'file'
+
+  - name: 'Bookmarks'
+    items:
+      - name: 'Example'
+        url: 'https://example.com'
+
+  - name: 'Network'
+    items:
+      - name: 'Router'
+        url: 'http://192.168.1.1'
+
+# Widgets - optional components with different display variants
+# Supported variants: info, icon-info, chart (depends on widget type)
+widgets:
+  - type: 'search'
+    position: 'top-right'
+    config:
+      engine: 'duckduckgo'
+      placeholder: 'Search the web...'
+
+  # Clock widget example
+  # - type: 'clock'
+  #   position: 'top-left'
+  #   variant: 'info' # Options: info, icon-info
+  #   config:
+  #     showAnalog: false
+  #     showDate: true
+
+  # Weather widget (requires OpenWeatherMap API key)
+  # - type: 'weather'
+  #   position: 'top-right'
+  #   variant: 'icon-info' # Options: info, icon-info
+  #   refreshInterval: 900
+  #   config:
+  #     apiKey: '${WEATHER_API_KEY}'
+  #     location: 'Berlin,DE'
+  #     units: 'metric'
+
+  # Info widget - display a single value from any API
+  # - type: 'info'
+  #   position: 'top-left'
+  #   variant: 'icon-info' # Options: info, icon-info
+  #   refreshInterval: 60
+  #   config:
+  #     apiEndpoint: 'https://api.example.com/data'
+  #     apiKey: '${API_KEY}'
+  #     label: 'My Value'
+  #     valueKey: 'price' # Supports nested paths: "data.price"
+  #     unit: 'USD'
+  #     prefix: '$'
+  #     decimals: 2
+  #     icon: 'coins' # Only used with icon-info variant
+
+  # Chart widget - display data visualization
+  # - type: 'chart'
+  #   position: 'bottom-right'
+  #   variant: 'chart'
+  #   refreshInterval: 300
+  #   config:
+  #     apiEndpoint: 'https://api.example.com/history'
+  #     apiKey: '${API_KEY}'
+  #     chartType: 'sparkline' # Options: line, bar, area, sparkline
+  #     dataKey: 'values' # Path to array in response
+  #     labelKey: 'date' # Optional: path to labels
+  #     color: 'var(--primary)'
+  #     showLegend: false
+  #     maxDataPoints: 30
