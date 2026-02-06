@@ -23,8 +23,10 @@ WORKDIR /app
 # Create non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# Copy built app
+# Copy built app and install production dependencies
 COPY --from=builder /app/build ./build
+COPY --from=builder /app/package.json /app/bun.lock ./
+RUN bun install --frozen-lockfile --production
 
 # Create config directory for volume mount
 RUN mkdir -p /config && chown -R appuser:appgroup /config
