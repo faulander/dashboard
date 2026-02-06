@@ -2,8 +2,6 @@
 
 A minimal, self-hosted startpage dashboard for organizing your bookmarks and services. Configure everything through a simple YAML file.
 
-![Dashboard Preview](https://via.placeholder.com/800x450?text=Dashboard+Preview)
-
 ## Features
 
 - **YAML Configuration** - No database, no complex setup. Just edit one file.
@@ -67,12 +65,12 @@ EOF
 # Run with Docker
 docker run -d \
   --name dashboard \
-  -p 3000:3000 \
+  -p 5005:3000 \
   -v $(pwd)/config:/config \
   dashboard:latest
 ```
 
-Open http://localhost:3000
+Open http://localhost:5005
 
 ### Using Docker Compose
 
@@ -82,7 +80,7 @@ services:
   dashboard:
     build: .
     ports:
-      - '3000:3000'
+      - '5005:3000'
     volumes:
       - ./config:/config
     restart: unless-stopped

@@ -159,7 +159,7 @@ widgets:
 ```bash
 # Build and run
 docker build -t startpage .
-docker run -p 3000:3000 -v $(pwd)/config:/config startpage
+docker run -p 5005:3000 -v $(pwd)/config:/config startpage
 
 # Or with docker-compose
 docker-compose up -d
